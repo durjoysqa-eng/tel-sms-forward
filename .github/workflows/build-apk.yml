@@ -2,30 +2,42 @@ name: Build APK
 
 on:
   push:
+    branches: [ "main", "master" ]
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          distribution: temurin
-          java-version: "17"
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'gradle'
 
       - name: Create local.properties from secrets
         run: |
           echo "TG_BOT_TOKEN=${{ secrets.TG_BOT_TOKEN }}" > local.properties
           echo "TG_GROUP_ID=${{ secrets.TG_GROUP_ID }}" >> local.properties
 
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
       - name: Build Debug APK
         run: ./gradlew assembleDebug
+
+      # This step helps us see exactly where the APK was created if the upload fails again
+      - name: List files (Troubleshooting)
+        run: find . -name "*.apk"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: app-debug-apk
-          path: app/build/outputs/apk/debug/*.apk
+          # Using a recursive search pattern to find the APK anywhere in the repo
+          path: "**/build/outputs/apk/debug/*.apk"
+          if-no-files-found: error
