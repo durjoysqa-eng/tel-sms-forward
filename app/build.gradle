@@ -1,0 +1,66 @@
+plugins {
+    id "com.android.application"
+    id "org.jetbrains.kotlin.android"
+    id "kotlin-kapt"
+}
+
+def lp = new Properties()
+def lpFile = rootProject.file("local.properties")
+if (lpFile.exists()) {
+    lpFile.withInputStream { lp.load(it) }
+}
+
+// Put your secrets in local.properties (NOT in code):
+// TG_BOT_TOKEN=xxxxx
+// TG_GROUP_ID=-100xxxxxxxxxx
+def TG_BOT_TOKEN = lp.getProperty("TG_BOT_TOKEN", "")
+def TG_GROUP_ID  = lp.getProperty("TG_GROUP_ID", "")
+
+android {
+    namespace "com.softtake.smstgforwarder"
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.softtake.smstgforwarder"
+        minSdk 23
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+
+        // Read secrets from local.properties so you don't hardcode them in the APK source repo
+        buildConfigField "String", "TG_BOT_TOKEN", ""${TG_BOT_TOKEN}""
+        buildConfigField "String", "TG_GROUP_ID", ""${TG_GROUP_ID}""
+    }
+
+    buildFeatures {
+        buildConfig true
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+}
+
+dependencies {
+    implementation "androidx.core:core-ktx:1.13.1"
+    implementation "androidx.appcompat:appcompat:1.7.0"
+    implementation "com.google.android.material:material:1.12.0"
+
+    // Coroutines
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1"
+
+    // WorkManager
+    implementation "androidx.work:work-runtime-ktx:2.9.0"
+
+    // Room
+    implementation "androidx.room:room-runtime:2.6.1"
+    implementation "androidx.room:room-ktx:2.6.1"
+    kapt "androidx.room:room-compiler:2.6.1"
+
+    // Network
+    implementation "com.squareup.okhttp3:okhttp:4.12.0"
+}
