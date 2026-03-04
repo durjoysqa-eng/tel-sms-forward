@@ -24,6 +24,9 @@ jobs:
           distribution: temurin
           java-version: "17"
 
+   
+         
+
       # ---------------------------------
       # 3. Setup Android SDK (VERY IMPORTANT)
       # ---------------------------------
@@ -43,7 +46,7 @@ jobs:
         run: |
           echo "TG_BOT_TOKEN=${{ secrets.TG_BOT_TOKEN }}" > local.properties
           echo "TG_GROUP_ID=${{ secrets.TG_GROUP_ID }}" >> local.properties
-
+           echo "sdk.dir=$ANDROID_SDK_ROOT" >> local.properties
       # ---------------------------------
       # 6. Build Debug APK
       # ---------------------------------
