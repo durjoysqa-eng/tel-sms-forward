@@ -2,6 +2,7 @@ name: Build APK
 
 on:
   push:
+    branches: [ "main", "master"]
   workflow_dispatch:
 
 jobs:
@@ -40,66 +41,3 @@ jobs:
           name: app-debug
           path: app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      # ---------------------------------
-      # 1. Checkout Code
-      # ---------------------------------
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      # ---------------------------------
-      # 2. Setup Java
-      # ---------------------------------
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "17"
-
-   
-         
-
-      # ---------------------------------
-      # 3. Setup Android SDK (VERY IMPORTANT)
-      # ---------------------------------
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
-      # ---------------------------------
-      # 4. Grant Permission to Gradlew
-      # ---------------------------------
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-
-      # ---------------------------------
-      # 5. Create local.properties from Secrets
-      # ---------------------------------
-      - name: Create local.properties from secrets
-        run: |
-          echo "TG_BOT_TOKEN=${{ secrets.TG_BOT_TOKEN }}" > local.properties
-          echo "TG_GROUP_ID=${{ secrets.TG_GROUP_ID }}" >> local.properties
-           echo "sdk.dir=$ANDROID_SDK_ROOT" >> local.properties
-      # ---------------------------------
-      # 6. Build Debug APK
-      # ---------------------------------
-      - name: Build Debug APK
-        run: ./gradlew assembleDebug --stacktrace --info
-
-      # ---------------------------------
-      # 7. Verify APK Exists
-      # ---------------------------------
-      - name: List APK Files
-        run: find . -type f -name "*.apk"
-
-      # ---------------------------------
-      # 8. Upload APK Artifact
-      # ---------------------------------
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-debug-apk
-          path: app/build/outputs/apk/debug/*.apk  # Move this to its own line
-          if-no-files-found: warn
