@@ -27,17 +27,18 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      # This is the critical fix: Running the build and then searching for the file
       - name: Build Debug APK
-        run: ./gradlew assembleDebug
+        # We explicitly call :app:assembleDebug to force Gradle to find the app module
+        run: ./gradlew :app:assembleDebug --stacktrace
 
-      - name: List all files to find APK (Debug Tool)
+      - name: List Files (To Verify Path)
+        if: always()
         run: find . -name "*.apk"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: app-debug-apk
-          # We use a broad pattern to capture the APK wherever Gradle decided to put it
+          # Using the most flexible path possible
           path: "**/*.apk"
           if-no-files-found: error
