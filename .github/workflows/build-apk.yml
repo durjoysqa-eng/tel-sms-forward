@@ -19,7 +19,7 @@ jobs:
           java-version: '17'
           cache: 'gradle'
 
-      - name: Create local.properties from secrets
+      - name: Create local.properties
         run: |
           echo "TG_BOT_TOKEN=${{ secrets.TG_BOT_TOKEN }}" > local.properties
           echo "TG_GROUP_ID=${{ secrets.TG_GROUP_ID }}" >> local.properties
@@ -27,17 +27,17 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
+      # This is the critical fix: Running the build and then searching for the file
       - name: Build Debug APK
         run: ./gradlew assembleDebug
 
-      # This step helps us see exactly where the APK was created if the upload fails again
-      - name: List files (Troubleshooting)
+      - name: List all files to find APK (Debug Tool)
         run: find . -name "*.apk"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: app-debug-apk
-          # Using a recursive search pattern to find the APK anywhere in the repo
-          path: "**/build/outputs/apk/debug/*.apk"
+          # We use a broad pattern to capture the APK wherever Gradle decided to put it
+          path: "**/*.apk"
           if-no-files-found: error
